@@ -1,23 +1,20 @@
 package com.example.toieclearning.Api;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LevelListDrawable;
+import android.os.AsyncTask;
 import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageRequest;
+import com.example.toieclearning.R;
 
-import java.util.HashMap;
+import java.io.InputStream;
+import java.net.URL;
 
 /**
  * Created by MyPC on 3/13/2017.
@@ -26,43 +23,70 @@ import java.util.HashMap;
 
 public class ImageGetterHandler implements Html.ImageGetter{
 
+    public FileCache mCache;
+    private TextView mText;
     private Context context;
-    private HashMap<String, Drawable> mImageCache;
 
-    /*
-    * Cach su dung :
-     * Truyen context va view vao
-     * Download anh luu vao cache
-     * Goi lai ham de lay cache ra
+    /* Bat buoc khoi tao TextView truoc
     * */
-    public ImageGetterHandler(Context c) {
-        this.mImageCache = new HashMap<>();
-        this.context = c;
+    public ImageGetterHandler(TextView mText, Context context) {
+        this.mText = mText;
+        this.context = context;
+        mCache = new FileCache(context);
     }
 
-    public Drawable getDrawable(final String source) {
-        final String url = ApiHelper.DOMAIN + source;
-        Log.d("IMG_SRC",source);
-        Drawable drawable = mImageCache.get(url);
-        if (drawable != null) {
-            return drawable;
-        } else {
-            ImageRequest ir = new ImageRequest(url, new Response.Listener<Bitmap>() {
-                @Override
-                public void onResponse(Bitmap response) {
-                    Drawable d = new BitmapDrawable(Resources.getSystem(), response);
-                    mImageCache.put(url,d);
-                }
-            }, 0, 0, null, null, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    //TODO: buoc nay bat buoc phai set cache khong se tao ra vong lap
-                    //CO THE SET TU DRAWLE TRONG MAY
-                mImageCache.put(url,null);
-                }
-            });
+    @Override
+    public Drawable getDrawable(String source) {
+        //from SD cache
 
+        Bitmap b = mCache.getImage(source);
+        if (b != null) {
+            Log.e("CACHEIMAGE", "HIHI");
+            return new BitmapDrawable(context.getResources(), b);
         }
-        return null;
+
+        LevelListDrawable d = new LevelListDrawable();
+        //TODO: thay the con cu vao
+        Drawable empty = context.getResources().getDrawable(R.drawable.user);
+        d.addLevel(0, 0, empty);
+        d.setBounds(0, 0, empty.getIntrinsicWidth(), empty.getIntrinsicHeight());
+        new LoadImage().execute(source, d, mText);
+        return d;
+    }
+
+    private class LoadImage extends AsyncTask<Object, Void, Bitmap> {
+        private TextView mTextview;
+        private LevelListDrawable mDrawable;
+        private String mSource;
+
+        @Override
+        protected Bitmap doInBackground(Object... params) {
+            mSource = (String) params[0];
+            mDrawable = (LevelListDrawable) params[1];
+            mTextview = (TextView) params[2];
+            Log.d("GetImage", "doInBackground " + mSource);
+            try {
+                InputStream is = new URL(mSource).openStream();
+                return BitmapFactory.decodeStream(is);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            Log.d("GetImageExecute", "onPostExecute drawable " + mDrawable);
+            Log.d("GetImageExecute", "onPostExecute bitmap " + bitmap);
+            if (bitmap != null) {
+                mCache.saveImage(bitmap, mSource);
+                BitmapDrawable d = new BitmapDrawable(bitmap);
+                mDrawable.addLevel(1, 1, d);
+                mDrawable.setBounds(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                mDrawable.setLevel(1);
+                CharSequence text = mTextview.getText();
+                mTextview.setText(text);
+            }
+        }
     }
 }

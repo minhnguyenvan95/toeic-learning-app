@@ -116,7 +116,7 @@
                                 android:layout_alignParentRight="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginRight="15sp"
-                                android:background="@drawable/play" />
+                                android:background="@mipmap/ic_launcher_white" />
                         </RelativeLayout>
                     </LinearLayout>
 
@@ -166,7 +166,7 @@
                                 android:layout_alignParentRight="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginRight="15sp"
-                                android:background="@drawable/play_black" />
+                                android:background="@mipmap/ic_launcher_headphone_black" />
                         </RelativeLayout>
 
                     </LinearLayout>
@@ -224,7 +224,7 @@
                                 android:layout_alignParentRight="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginRight="15sp"
-                                android:background="@drawable/play_black"
+                                android:background="@mipmap/ic_launcher_headphone_black"
                                 />
                         </RelativeLayout>
                     </LinearLayout>
@@ -263,9 +263,9 @@
                                 android:layout_alignParentLeft="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginLeft="10sp"
-                                android:text="Short Information"
+                                android:text="Short Infor"
                                 android:textColor="#ffffff"
-                                android:textSize="18sp" />
+                                android:textSize="22sp" />
 
                             <Button
                                 android:id="@+id/btnImage"
@@ -274,7 +274,7 @@
                                 android:layout_alignParentRight="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginRight="15sp"
-                                android:background="@drawable/play"
+                                android:background="@mipmap/ic_launcher_white"
 
                                 />
                         </RelativeLayout>
@@ -334,7 +334,7 @@
                                 android:layout_alignParentRight="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginRight="15sp"
-                                android:background="@drawable/play_black"
+                                android:background="@drawable/book"
                                 />
                         </RelativeLayout>
                     </LinearLayout>
@@ -372,9 +372,9 @@
                                 android:layout_alignParentLeft="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginLeft="10sp"
-                                android:text="Leadeboard "
+                                android:text="Complete text"
                                 android:textColor="#ffffff"
-                                android:textSize="22sp" />
+                                android:textSize="20sp" />
 
                             <Button
                                 android:id="@+id/btn"
@@ -383,7 +383,7 @@
                                 android:layout_alignParentRight="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginRight="15sp"
-                                android:background="@mipmap/ic_launcher_next"
+                                android:background="@drawable/book_white"
 
                                 />
                         </RelativeLayout>
@@ -430,7 +430,7 @@
                                 android:layout_alignParentLeft="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginLeft="10sp"
-                                android:text="Dictionary"
+                                android:text="Paragraph"
                                 android:textColor="#333232"
                                 android:textSize="22sp" />
 
@@ -464,7 +464,7 @@
                                 android:layout_centerHorizontal="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginTop="80sp"
-                                android:src="@drawable/leadboad" />
+                                android:src="@drawable/dictionary" />
                         </RelativeLayout>
 
 
@@ -479,7 +479,7 @@
                                 android:layout_alignParentLeft="true"
                                 android:layout_centerVertical="true"
                                 android:layout_marginLeft="10sp"
-                                android:text="Leadeboard "
+                                android:text="Dictionary"
                                 android:textColor="#ffffff"
                                 android:textSize="22sp" />
 
