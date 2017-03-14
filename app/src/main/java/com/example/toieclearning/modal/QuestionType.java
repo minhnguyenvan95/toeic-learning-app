@@ -9,6 +9,15 @@ public class QuestionType {
     private String name;
     private String meta;
 
+    public QuestionType(int id, String name, String meta) {
+        this.id = id;
+        this.name = name;
+        this.meta = meta;
+    }
+
+    public QuestionType() {
+    }
+
     public int getId() {
         return id;
     }
@@ -33,12 +42,4 @@ public class QuestionType {
         this.meta = meta;
     }
 
-    public QuestionType(int id, String name, String meta) {
-        this.id = id;
-        this.name = name;
-        this.meta = meta;
-    }
-
-    public QuestionType() {
-    }
 }
