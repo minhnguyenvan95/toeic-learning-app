@@ -37,7 +37,8 @@ public class ImageGetterHandler implements Html.ImageGetter{
     }
 
     @Override
-    public Drawable getDrawable(String source) {
+    public Drawable getDrawable(String src) {
+        String source = ApiHelper.DOMAIN + src;
         LevelListDrawable d = new LevelListDrawable();
         Bitmap b = mCache.getImage(source);
         if (b != null) {
@@ -81,8 +82,8 @@ public class ImageGetterHandler implements Html.ImageGetter{
             Log.d("GetImageExecute", "onPostExecute bitmap " + bitmap);
             if (bitmap != null) {
                 Bitmap resizeBitmap = mCache.resizeImage(bitmap);
-                mCache.saveImage(resizeBitmap, mSource);
-                BitmapDrawable d = new BitmapDrawable(resizeBitmap);
+                mCache.saveFile(resizeBitmap, mSource);
+                BitmapDrawable d = new BitmapDrawable(context.getResources(),resizeBitmap);
                 mDrawable.addLevel(1, 1, d);
                 mDrawable.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
                 mDrawable.setLevel(1);

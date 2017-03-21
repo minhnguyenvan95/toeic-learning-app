@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -51,12 +52,11 @@ public class FileCache {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         Log.e("get_image",f.getAbsolutePath());
-        Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), options);
-        return bitmap;
+        return BitmapFactory.decodeFile(f.getAbsolutePath(), options);
     }
 
 
-    public boolean saveImage(Bitmap b, String url) {
+    public boolean saveFile(Bitmap b, String url) {
         File f = getFile(url);
         if(f.exists())
             return true;
@@ -79,6 +79,41 @@ public class FileCache {
         }
         return true;
     }
+
+    public boolean saveFile(byte[] data,String url){
+        File f = getFile(url);
+        if(f.exists())
+            return true;
+        Log.e("save_file",f.getAbsolutePath());
+
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(f);
+            outputStream.write(data);
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /*
+    public byte[] getAudio(String url){
+        File file = getFile(url);
+        int size = (int) file.length();
+        byte[] bytes = new byte[size];
+        try {
+            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
+            buf.read(bytes, 0, bytes.length);
+            buf.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return bytes;
+    }*/
+
 
     public Bitmap resizeImage(Bitmap b){
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
