@@ -7,8 +7,18 @@ package com.example.toieclearning.modal;
 public class Question {
     private int id;
     private int question_type_id;
-    private int id_doanvan;
+    private int package_id;
     private String content;
+
+    public Question() {
+    }
+
+    public Question(int id, int question_type_id, int package_id, String content) {
+        this.id = id;
+        this.question_type_id = question_type_id;
+        this.package_id = package_id;
+        this.content = content;
+    }
 
     public int getId() {
         return id;
@@ -26,12 +36,12 @@ public class Question {
         this.question_type_id = question_type_id;
     }
 
-    public int getId_doanvan() {
-        return id_doanvan;
+    public int getPackage_id() {
+        return package_id;
     }
 
-    public void setId_doanvan(int id_doanvan) {
-        this.id_doanvan = id_doanvan;
+    public void setPackage_id(int package_id) {
+        this.package_id = package_id;
     }
 
     public String getContent() {
@@ -40,15 +50,5 @@ public class Question {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public Question(int id, int question_type_id, int id_doanvan, String content) {
-        this.id = id;
-        this.question_type_id = question_type_id;
-        this.id_doanvan = id_doanvan;
-        this.content = content;
-    }
-
-    public Question() {
     }
 }

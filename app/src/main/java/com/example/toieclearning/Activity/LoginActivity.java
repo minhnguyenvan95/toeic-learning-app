@@ -168,8 +168,9 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("api_token", api_token);
                         editor.putString("name", name);
                         editor.apply();
-                        Toast.makeText(LoginActivity.this, "THanh cong", Toast.LENGTH_SHORT).show();
-                        //TODO: chuyen activity
+                        Toast.makeText(LoginActivity.this, "Thanh cong", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
                     } else {
                         String message = (String) response.get("message");
                         Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();

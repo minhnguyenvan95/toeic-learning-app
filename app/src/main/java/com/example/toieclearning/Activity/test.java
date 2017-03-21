@@ -5,7 +5,6 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -13,12 +12,12 @@ import com.android.volley.Response;
 import com.example.toieclearning.Api.ApiHelper;
 import com.example.toieclearning.Api.FileCache;
 import com.example.toieclearning.Api.ImageGetterHandler;
+import com.example.toieclearning.Api.InputStreamVolleyRequest;
 import com.example.toieclearning.R;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import com.example.toieclearning.Api.InputStreamVolleyRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +25,7 @@ import java.io.IOException;
 public class test extends Activity {
     private final static String TAG = "TestImageGetter";
     ImageGetterHandler imageGetterHandler;
-    MediaPlayer mediaPlayer = new MediaPlayer();
+    MediaPlayer mediaPlayer;
     FileCache fileCache;
     private TextView mTv;
 
@@ -35,6 +34,7 @@ public class test extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         mTv = (TextView) findViewById(R.id.text);
+        mediaPlayer = new MediaPlayer();
         imageGetterHandler = new ImageGetterHandler(mTv, this);
         fileCache = new FileCache(this);
         ApiHelper.setContext(getApplicationContext());

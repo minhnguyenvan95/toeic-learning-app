@@ -1,10 +1,14 @@
 package com.example.toieclearning.Activity;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -12,6 +16,7 @@ import com.android.volley.VolleyError;
 import com.example.toieclearning.Api.ApiHelper;
 import com.example.toieclearning.Api.ApiRequest;
 import com.example.toieclearning.Api.ImageGetterHandler;
+import com.example.toieclearning.Fragment.Question_Frag;
 import com.example.toieclearning.R;
 import com.example.toieclearning.modal.Question;
 import com.example.toieclearning.modal.QuestionType;
@@ -22,13 +27,27 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+
+    Button btnQA;
+
     ImageGetterHandler imageGetterHandler;
+    FragmentManager fragmentManager = getFragmentManager();
     private int[] box_labels = {R.id.box_0};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        btnQA = (Button) findViewById(R.id.btnQA);
+        btnQA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                fragmentTransaction.add(R.id.showFragment, new Question_Frag(), "question");
+                fragmentTransaction.addToBackStack("ques");
+                fragmentTransaction.commit();
+            }
+        });
         //imageGetterHandler = new ImageGetterHandler(this);
 
         ApiHelper.setContext(getApplicationContext());

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="300sp"
+    android:background="#fff"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="5sp">
+
+    <GridView
+
+        android:id="@+id/grNumber"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="15sp"
+        android:gravity="center"
+        android:numColumns="3"
+        android:paddingLeft="20sp"
+        android:paddingTop="20sp"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:verticalSpacing="10sp" />
+</RelativeLayout>
