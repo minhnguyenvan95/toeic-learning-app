@@ -10,7 +10,9 @@ import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -45,7 +47,8 @@ public class Question_Frag extends Fragment {
     RadioButton rdbA, rdbB, rd;
     GridView gridView;
     ArrayList listNumberQuestion;
-    private TextView mTv;
+    ImageButton pre, next;
+    int current_question = -1;
 
     public Question_Frag() {
 
@@ -55,10 +58,35 @@ public class Question_Frag extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.question_fragment, container, false);
-        mTv = new TextView(getActivity());
-        init();
         addControl();
+        addEvents();
+        init();
         return view;
+    }
+
+    private void addEvents() {
+        pre = (ImageButton) view.findViewById(R.id.previous_question_btn);
+        pre.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showQuestion(current_question - 1);
+            }
+        });
+        next = (ImageButton) view.findViewById(R.id.next_question_btn);
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showQuestion(current_question + 1);
+            }
+        });
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int number = (int) listNumberQuestion.get(position);
+                showQuestion(number);
+                dialog.dismiss();
+            }
+        });
     }
 
     private void addControl() {
@@ -80,7 +108,7 @@ public class Question_Frag extends Fragment {
     private void init() {
         mediaPlayer = new MediaPlayer();
         //TODO: init mTv
-        imageGetterHandler = new ImageGetterHandler(mTv, getActivity());
+        imageGetterHandler = new ImageGetterHandler(txtQuestion, getActivity());
         fileCache = new FileCache(getActivity());
         ApiHelper.setContext(getActivity());
 
@@ -95,7 +123,7 @@ public class Question_Frag extends Fragment {
                         if (!isPackage) {
                             listNumberQuestion = new ArrayList<>();
                             for (int i = 0; i < data.length(); i++) {
-                                listNumberQuestion.add(i);
+                                listNumberQuestion.add(i + 1);
                                 JSONObject qo = (JSONObject) data.get(i);
                                 int id = qo.getInt("id");
                                 String s_package_id = qo.getString("package_id");
@@ -103,11 +131,11 @@ public class Question_Frag extends Fragment {
                                 int question_type_id = qo.getInt("question_type_id");
                                 String content = qo.getString("content");
                                 Question q = new Question(id, question_type_id, package_id, content);
-                                questionHashMap.put(i, q);
+                                questionHashMap.put(i + 1, q);
                             }
                             DialogAdapter adapter = new DialogAdapter(getActivity(), R.layout.number_adapter, listNumberQuestion);
                             gridView.setAdapter(adapter);
-                            showQuestion(0);
+                            showQuestion(1);
                         }
                     }
                 } catch (JSONException e) {
@@ -120,6 +148,15 @@ public class Question_Frag extends Fragment {
     }
 
     private void showQuestion(int number) {
+        if (number == 1) {
+            pre.setVisibility(View.INVISIBLE);
+        } else if (number == questionHashMap.size()) {
+            next.setVisibility(View.INVISIBLE);
+        } else {
+            pre.setVisibility(View.VISIBLE);
+            next.setVisibility(View.VISIBLE);
+        }
+        current_question = number;
         Question q = questionHashMap.get(number);
         txtNumber.setText(String.valueOf(number));
         Spanned spanned = Html.fromHtml(q.getContent(), imageGetterHandler, null);

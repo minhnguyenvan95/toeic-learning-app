@@ -8,9 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.toieclearning.R;
-import com.example.toieclearning.modal.NumberQuestion;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by Admin on 3/21/2017.
@@ -19,22 +18,22 @@ import java.util.List;
 public class DialogAdapter extends BaseAdapter {
     Context context;
     int layout;
-    List<NumberQuestion> listNum;
+    ArrayList listNumberQuestion;
 
-    public DialogAdapter(Context context, int layout, List<NumberQuestion> listNum) {
+    public DialogAdapter(Context context, int layout, ArrayList listNum) {
         this.context = context;
         this.layout = layout;
-        this.listNum = listNum;
+        this.listNumberQuestion = listNum;
     }
 
     @Override
     public int getCount() {
-        return listNum.size();
+        return listNumberQuestion.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return listNum.get(position);
+        return listNumberQuestion.get(position);
     }
 
     @Override
@@ -49,7 +48,9 @@ public class DialogAdapter extends BaseAdapter {
         convertView = inflater.inflate(R.layout.number_adapter, null);
 
         TextView txtNumber = (TextView) convertView.findViewById(R.id.txtNumberAdapter);
-        //txtNumber.setText(listNum.get(position).Number);
+        int num = (int) listNumberQuestion.get(position);
+        txtNumber.setText(String.valueOf(num));
+
         return convertView;
     }
 }

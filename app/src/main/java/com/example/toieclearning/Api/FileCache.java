@@ -11,12 +11,8 @@ import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class FileCache {
     private Context context;
@@ -117,12 +113,21 @@ public class FileCache {
 
     public Bitmap resizeImage(Bitmap b){
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+
         float aspectRatio = b.getWidth()/ (float) b.getHeight();
+        /*
         if(b.getWidth() > displayMetrics.widthPixels){
             int scaledheight =  Math.round(displayMetrics.widthPixels / aspectRatio);
             return Bitmap.createScaledBitmap(b, displayMetrics.widthPixels, scaledheight, false);
         }
-        return b;
+        return b;*/
+        int scaledheight = Math.round(displayMetrics.widthPixels / aspectRatio);
+        if (scaledheight > displayMetrics.heightPixels * 2 / 3) {
+            return Bitmap.createScaledBitmap(b, displayMetrics.widthPixels * 2 / 3, scaledheight * 2 / 3, false);
+        }
+        return Bitmap.createScaledBitmap(b, displayMetrics.widthPixels, scaledheight, false);
+
+        //return b;
     }
 
 }
