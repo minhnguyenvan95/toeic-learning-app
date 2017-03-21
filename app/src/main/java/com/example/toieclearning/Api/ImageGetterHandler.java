@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.example.toieclearning.R;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -20,7 +21,7 @@ import java.net.URL;
  * Created by MyPC on 3/13/2017.
  *
  */
-
+//
 public class ImageGetterHandler implements Html.ImageGetter{
 
     public FileCache mCache;
@@ -37,19 +38,19 @@ public class ImageGetterHandler implements Html.ImageGetter{
 
     @Override
     public Drawable getDrawable(String source) {
-        //from SD cache
-
+        LevelListDrawable d = new LevelListDrawable();
         Bitmap b = mCache.getImage(source);
         if (b != null) {
-            Log.e("CACHEIMAGE", "HIHI");
-            return new BitmapDrawable(context.getResources(), b);
+            BitmapDrawable bitmapDrawable = new BitmapDrawable(context.getResources(), b);
+            d.addLevel(0, 0, bitmapDrawable);
+            d.setBounds(0, 0, bitmapDrawable.getIntrinsicWidth(), bitmapDrawable.getIntrinsicHeight());
+            return d;
         }
 
-        LevelListDrawable d = new LevelListDrawable();
-        //TODO: thay the con cu vao
-        Drawable empty = context.getResources().getDrawable(R.drawable.user);
-        d.addLevel(0, 0, empty);
-        d.setBounds(0, 0, empty.getIntrinsicWidth(), empty.getIntrinsicHeight());
+        Drawable def = context.getResources().getDrawable(R.drawable.user);
+        d.addLevel(0, 0, def);
+        d.setBounds(0, 0, def.getIntrinsicWidth(), def.getIntrinsicHeight());
+
         new LoadImage().execute(source, d, mText);
         return d;
     }
@@ -79,10 +80,11 @@ public class ImageGetterHandler implements Html.ImageGetter{
             Log.d("GetImageExecute", "onPostExecute drawable " + mDrawable);
             Log.d("GetImageExecute", "onPostExecute bitmap " + bitmap);
             if (bitmap != null) {
-                mCache.saveImage(bitmap, mSource);
-                BitmapDrawable d = new BitmapDrawable(bitmap);
+                Bitmap resizeBitmap = mCache.resizeImage(bitmap);
+                mCache.saveImage(resizeBitmap, mSource);
+                BitmapDrawable d = new BitmapDrawable(resizeBitmap);
                 mDrawable.addLevel(1, 1, d);
-                mDrawable.setBounds(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                mDrawable.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
                 mDrawable.setLevel(1);
                 CharSequence text = mTextview.getText();
                 mTextview.setText(text);

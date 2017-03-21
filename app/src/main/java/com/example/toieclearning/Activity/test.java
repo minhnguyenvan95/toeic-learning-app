@@ -22,11 +22,11 @@ public class test extends Activity {
         imageGetterHandler = new ImageGetterHandler(mTv, this);
         String source = "this is a test of <b>ImageGetter</b> it contains " +
                 "two images: <br/>" +
-                "<img src=\"https://i.ytimg.com/vi/DSAJdFPp8Ao/maxresdefault.jpg\"><br/>and<br/>" +
-                "<img src=\"https://i.ytimg.com/vi/DSAJdFPp8Ao/maxresdefault.jpg\"><br/>and<br/>";
+                "<img src=\"http://www.trovea.com/images/detailed/9/kaia-bikini-sexy-lady-pink-bikini-swimsuit-4065-A-0.jpg\"><br/>and<br/>";
 
         Spanned spanned = Html.fromHtml(source, imageGetterHandler, null);
         mTv.setText(spanned);
+
     }
 
 }

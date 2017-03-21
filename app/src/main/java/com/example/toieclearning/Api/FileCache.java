@@ -5,20 +5,24 @@ package com.example.toieclearning.Api;
  */
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class FileCache {
-    //hihihi
+    private Context context;
     private File cacheDir;
 
     public FileCache(Context context) {
+        this.context = context;
         //Find the dir to save cached images
         if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
             cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "TempFiles");
@@ -44,52 +48,46 @@ public class FileCache {
 
     public Bitmap getImage(String url) {
         File f = getFile(url);
-        try {
-            //decode image size
-            BitmapFactory.Options o = new BitmapFactory.Options();
-            o.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(new FileInputStream(f), null, o);
-
-            //Find the correct scale value. It should be the power of 2.
-            final int REQUIRED_SIZE = 70;
-            int width_tmp = o.outWidth, height_tmp = o.outHeight;
-            int scale = 1;
-            while (true) {
-                if (width_tmp / 2 < REQUIRED_SIZE || height_tmp / 2 < REQUIRED_SIZE)
-                    break;
-                width_tmp /= 2;
-                height_tmp /= 2;
-                scale *= 2;
-            }
-
-            //decode with inSampleSize
-            BitmapFactory.Options o2 = new BitmapFactory.Options();
-            o2.inSampleSize = scale;
-            return BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
-        } catch (FileNotFoundException e) {
-            Log.e("HAHAHAHA", e.getMessage());
-            e.printStackTrace();
-        }
-        return null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Log.e("get_image",f.getAbsolutePath());
+        Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), options);
+        return bitmap;
     }
+
 
     public boolean saveImage(Bitmap b, String url) {
         File f = getFile(url);
+        if(f.exists())
+            return true;
+        Log.e("save_image",f.getAbsolutePath());
+        FileOutputStream out = null;
         try {
-            FileOutputStream out = new FileOutputStream(
-                    f);
-            b.compress(
-                    Bitmap.CompressFormat.JPEG,
-                    100, out);
-            out.flush();
-            out.close();
-
+            out = new FileOutputStream(f);
+            b.compress(Bitmap.CompressFormat.PNG, 100, out);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return true;
     }
 
+    public Bitmap resizeImage(Bitmap b){
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        float aspectRatio = b.getWidth()/ (float) b.getHeight();
+        if(b.getWidth() > displayMetrics.widthPixels){
+            int scaledheight =  Math.round(displayMetrics.widthPixels / aspectRatio);
+            return Bitmap.createScaledBitmap(b, displayMetrics.widthPixels, scaledheight, false);
+        }
+        return b;
+    }
 
 }
