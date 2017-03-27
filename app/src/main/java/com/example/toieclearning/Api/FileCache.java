@@ -22,7 +22,7 @@ public class FileCache {
         this.context = context;
         //Find the dir to save cached images
         if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
-            cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "TempFiles");
+            cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "ToeicLearningFiles");
         else
             cacheDir = context.getCacheDir();
         if (!cacheDir.exists())

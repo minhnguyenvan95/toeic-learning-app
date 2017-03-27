@@ -4,9 +4,11 @@ import android.app.Dialog;
 import android.app.Fragment;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +17,9 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -24,13 +28,21 @@ import com.example.toieclearning.Api.ApiHelper;
 import com.example.toieclearning.Api.ApiRequest;
 import com.example.toieclearning.Api.FileCache;
 import com.example.toieclearning.Api.ImageGetterHandler;
+import com.example.toieclearning.Api.InputStreamVolleyRequest;
 import com.example.toieclearning.R;
+import com.example.toieclearning.modal.Answer;
 import com.example.toieclearning.modal.Question;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -44,11 +56,16 @@ public class Question_Frag extends Fragment {
     Dialog dialog;
     TextView txtNumber, txtQuestion;
     RadioGroup rdbGroup;
-    RadioButton rdbA, rdbB, rd;
     GridView gridView;
     ArrayList listNumberQuestion;
     ImageButton pre, next;
     int current_question = -1;
+    Handler handler;
+    SeekBar media_seekBar;
+    TextView media_current_txt;
+    ImageButton media_play_btn;
+
+    HashMap<Integer, Answer> answeredHashMap;
 
     public Question_Frag() {
 
@@ -90,6 +107,10 @@ public class Question_Frag extends Fragment {
     }
 
     private void addControl() {
+        rdbGroup = (RadioGroup) view.findViewById(R.id.rdbGroupAnswer);
+        media_play_btn = (ImageButton) view.findViewById(R.id.media_play_btn);
+        media_current_txt = (TextView) view.findViewById(R.id.media_current_txt);
+        media_seekBar = (SeekBar) view.findViewById(R.id.media_seekbar);
         txtQuestion = (TextView) view.findViewById(R.id.txtQuestion);
         txtNumber = (TextView) view.findViewById(R.id.txtNumber);
 
@@ -106,6 +127,7 @@ public class Question_Frag extends Fragment {
     }
 
     private void init() {
+        answeredHashMap = new HashMap<>();
         mediaPlayer = new MediaPlayer();
         //TODO: init mTv
         imageGetterHandler = new ImageGetterHandler(txtQuestion, getActivity());
@@ -125,12 +147,24 @@ public class Question_Frag extends Fragment {
                             for (int i = 0; i < data.length(); i++) {
                                 listNumberQuestion.add(i + 1);
                                 JSONObject qo = (JSONObject) data.get(i);
-                                int id = qo.getInt("id");
+                                int question_id = qo.getInt("id");
                                 String s_package_id = qo.getString("package_id");
                                 int package_id = s_package_id.equals("null") ? Integer.MAX_VALUE : Integer.parseInt(s_package_id);
                                 int question_type_id = qo.getInt("question_type_id");
                                 String content = qo.getString("content");
-                                Question q = new Question(id, question_type_id, package_id, content);
+
+                                HashMap<Integer, Answer> answerArrayList = new HashMap<>();
+                                JSONArray ao = (JSONArray) qo.get("answers");
+                                for (int j = 0; j < ao.length(); j++) {
+                                    JSONObject a = (JSONObject) ao.get(j);
+                                    int a_id = (int) a.get("id");
+                                    int a_checked = (int) a.get("checked");
+                                    String a_content = (String) a.get("content");
+                                    Answer c = new Answer(a_id, a_checked == 1, a_content, question_id);
+                                    answerArrayList.put(a_id, c);
+                                }
+
+                                Question q = new Question(question_id, question_type_id, package_id, content, answerArrayList);
                                 questionHashMap.put(i + 1, q);
                             }
                             DialogAdapter adapter = new DialogAdapter(getActivity(), R.layout.number_adapter, listNumberQuestion);
@@ -150,16 +184,165 @@ public class Question_Frag extends Fragment {
     private void showQuestion(int number) {
         if (number == 1) {
             pre.setVisibility(View.INVISIBLE);
-        } else if (number == questionHashMap.size()) {
+        } else if (number >= questionHashMap.size()) {
             next.setVisibility(View.INVISIBLE);
         } else {
             pre.setVisibility(View.VISIBLE);
             next.setVisibility(View.VISIBLE);
         }
-        current_question = number;
+
+
         Question q = questionHashMap.get(number);
+
+        //Tim cau hoi chua tl
+        if (q == null) {
+            for (int key : questionHashMap.keySet()) {
+                //Cau hoi nay chua duoc tra loi
+                Question qu = questionHashMap.get(key);
+                if (answeredHashMap.get(qu.getId()) == null) {
+                    q = qu;
+                    number = key;
+                }
+            }
+        }
+
+        //TODO: Neu q la null cham diem
+
+        current_question = number;
         txtNumber.setText(String.valueOf(number));
-        Spanned spanned = Html.fromHtml(q.getContent(), imageGetterHandler, null);
+        String html = q.getContent();
+        Spanned spanned = Html.fromHtml(html, imageGetterHandler, null);
+        playMediaFromHtml(html);
         txtQuestion.setText(spanned);
+
+        rdbGroup.removeAllViews();
+        final HashMap<Integer, Answer> answerArrayList = q.getAnswers();
+
+        for (int i = 0; i < answerArrayList.size(); i++) {
+            rdbGroup.addView(new View(getActivity()));
+        }
+
+        for (Answer a : answerArrayList.values()) {
+            RadioButton rdbtn = new RadioButton(getActivity());
+            rdbtn.setId(a.getId());
+            rdbtn.setText(a.getContent());
+
+            Answer da_chon = answeredHashMap.get(q.getId());
+
+            if (da_chon != null && a.getId() == da_chon.getId()) {
+                rdbtn.setChecked(true);
+            }
+
+            rdbtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int a_id = v.getId();
+                    Toast.makeText(getActivity(), "CHON " + a_id, Toast.LENGTH_SHORT).show();
+                    Answer c = answerArrayList.get(a_id);
+                    answeredHashMap.put(c.getQuestion_id(), c);
+                    showQuestion(current_question + 1);
+                }
+            });
+            try {
+                if (a.getContent().equals("A")) {
+                    rdbGroup.removeViewAt(0);
+                    rdbGroup.addView(rdbtn, 0);
+                } else if (a.getContent().equals("B")) {
+                    rdbGroup.removeViewAt(1);
+                    rdbGroup.addView(rdbtn, 1);
+                } else if (a.getContent().equals("C")) {
+                    rdbGroup.removeViewAt(2);
+                    rdbGroup.addView(rdbtn, 2);
+                } else if (a.getContent().equals("D")) {
+                    rdbGroup.removeViewAt(3);
+                    rdbGroup.addView(rdbtn, 3);
+                } else {
+                    rdbGroup.removeAllViews();
+                    rdbGroup.addView(rdbtn);
+                }
+            } catch (Exception ex) {
+                rdbGroup.removeAllViews();
+                rdbGroup.addView(rdbtn);
+            }
+        }
+
+        //Neu cau tra loi da duoc chon thi giu lai trang thai
+        /*
+        Answer da_chon = answeredHashMap.get(q.getId());
+        if(da_chon != null) {
+            Toast.makeText(getActivity(), "Da chon : " + da_chon.getId(), Toast.LENGTH_SHORT).show();
+            rdbGroup.check(da_chon.getId());
+        }*/
+    }
+
+    public void playMediaFromHtml(final String html) {
+        if (html.contains("<audio") && html.contains("</audio>")) {
+            Document doc = Jsoup.parse(html);
+            Element src = doc.select("source").first();
+            final String audio = src.attr("src");
+            if (audio != null) {
+                File f = fileCache.getFile(audio);
+                Log.e("file_audio", f.getAbsolutePath());
+                if (f.exists()) {
+                    mediaPlayer.reset();
+                    try {
+                        mediaPlayer.setDataSource(f.getAbsolutePath());
+                        mediaPlayer.prepare();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    mediaPlayer.start();
+                    UpdateTimeSongCurrent();
+                    media_play_btn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (mediaPlayer.isPlaying()) {
+                                mediaPlayer.pause();
+                                handler.removeCallbacksAndMessages(null);
+                                UpdateTimeSongCurrent();
+                            } else {
+                                mediaPlayer.start();
+                                UpdateTimeSongCurrent();
+                            }
+                        }
+                    });
+
+                } else {
+                    InputStreamVolleyRequest rq = new InputStreamVolleyRequest(Request.Method.GET, ApiHelper.DOMAIN + audio,
+                            new Response.Listener<byte[]>() {
+                                @Override
+                                public void onResponse(byte[] response) {
+                                    fileCache.saveFile(response, audio);
+                                    playMediaFromHtml(html);
+                                }
+                            }, null, null);
+                    ApiHelper.addToRequestQueue(rq);
+                }
+            }
+        }
+    }
+
+    private void UpdateTimeSongCurrent() {
+        if (mediaPlayer.isPlaying())
+            media_play_btn.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
+        else {
+            media_play_btn.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+            return;
+        }
+
+        handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                int c_seekbar_pos = 100 * mediaPlayer.getCurrentPosition() / mediaPlayer.getDuration();
+                media_seekBar.setProgress(c_seekbar_pos);
+                SimpleDateFormat timeFormat = new SimpleDateFormat("mm:ss");
+                media_current_txt.setText(timeFormat.format(mediaPlayer.getCurrentPosition()));
+                if (mediaPlayer.getCurrentPosition() + 500 >= mediaPlayer.getDuration()) {
+                    media_play_btn.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+                } else
+                    handler.postDelayed(this, 500);
+            }
+        }, 1);
     }
 }
