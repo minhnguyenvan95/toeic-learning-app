@@ -122,9 +122,9 @@ public class FileCache {
         }
         return b;*/
         int scaledheight = Math.round(displayMetrics.widthPixels / aspectRatio);
-        if (scaledheight > displayMetrics.heightPixels * 2 / 3) {
-            return Bitmap.createScaledBitmap(b, displayMetrics.widthPixels * 2 / 3, scaledheight * 2 / 3, false);
-        }
+        /*if (scaledheight > displayMetrics.heightPixels /2) {
+            return Bitmap.createScaledBitmap(b, displayMetrics.widthPixels /2, scaledheight /2, false);
+        }*/
         return Bitmap.createScaledBitmap(b, displayMetrics.widthPixels, scaledheight, false);
 
         //return b;

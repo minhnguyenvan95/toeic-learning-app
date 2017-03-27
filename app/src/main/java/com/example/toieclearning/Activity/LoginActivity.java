@@ -28,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView txtChuaCoTK, txtQuenMK;
     EditText edtEmail, edtPassword;
     Button btnDangNhap;
+    Dialog dialog;
     private Dialog loadingDialog;
 
     @Override
@@ -43,11 +44,12 @@ public class LoginActivity extends AppCompatActivity {
         txtChuaCoTK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Dialog dialog = new Dialog(LoginActivity.this);
+                dialog = new Dialog(LoginActivity.this);
                 dialog.setCancelable(false);
                 dialog.setContentView(R.layout.activity_regiss);
                 dialog.show();
                 final EditText edtMail = (EditText) dialog.findViewById(R.id.edtEmailRegis);
+                final EditText edtName = (EditText) dialog.findViewById(R.id.edtNameUser);
                 final EditText edtPass = (EditText) dialog.findViewById(R.id.edtPassRegis);
                 final EditText edtPassRe = (EditText) dialog.findViewById(R.id.edtPassRegisRe);
 
@@ -64,10 +66,12 @@ public class LoginActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         String email = edtMail.getText().toString().trim();
                         String pass = edtPass.getText().toString().trim();
+                        String name = edtName.getText().toString().trim();
+                        String passconfirm = edtPassRe.getText().toString().trim();
                         if (!pass.equals(edtPassRe.getText().toString().trim())) {
                             Toast.makeText(LoginActivity.this, "Password do not match!!", Toast.LENGTH_SHORT).show();
                         } else {
-                            register(email, pass);
+                            register(email, pass, name, passconfirm);
                         }
                     }
                 });
@@ -92,12 +96,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void register(String username, String password) {
+    private void register(final String username, final String password, String name, String passwordconfirm) {
         loadingDialog = ProgressDialog.show(LoginActivity.this, "Please wait", "Loading...");
         JSONObject object = new JSONObject();
         try {
             object.put("email", username);
             object.put("password", password);
+            object.put("name", name);
+            object.put("password_confirmation", passwordconfirm);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -106,6 +112,22 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 loadingDialog.dismiss();
+                try {
+                    String status = (String) response.get("status");
+                    if (status.equals("success")) {
+                        //JSONObject message = (JSONObject) response.get("message");
+                        Toast.makeText(LoginActivity.this, "Register success", Toast.LENGTH_SHORT).show();
+                        edtEmail.setText(username);
+                        edtPassword.setText(password);
+                        dialog.dismiss();
+                        //loadingDialog.dismiss();
+                    } else {
+                        String message = (String) response.get("message");
+                        Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -113,6 +135,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+        ApiHelper.addToRequestQueue(apiRequest, "dang_ky");
     }
 
     @Override
