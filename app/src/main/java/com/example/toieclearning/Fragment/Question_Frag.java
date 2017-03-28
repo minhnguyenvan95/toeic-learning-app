@@ -2,6 +2,8 @@ package com.example.toieclearning.Fragment;
 
 import android.app.Dialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,7 +11,10 @@ import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -23,6 +28,7 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.toolbox.ImageRequest;
 import com.example.toieclearning.Adapter.DialogAdapter;
 import com.example.toieclearning.Api.ApiHelper;
 import com.example.toieclearning.Api.ApiRequest;
@@ -39,6 +45,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,6 +111,63 @@ public class Question_Frag extends Fragment {
                 dialog.dismiss();
             }
         });
+
+        txtQuestion.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+            private boolean flag = false;
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                if (!flag) {
+                    flag = true;
+                    return false;
+                }
+                flag = false;
+
+                int pos_start = txtQuestion.getSelectionStart();
+                int pos_end = txtQuestion.getSelectionEnd();
+                String selected_txt = txtQuestion.getText().toString().substring(pos_start, pos_end);
+
+                ProgressDialog progressDialog = new ProgressDialog(getActivity());
+                progressDialog.setMessage("Translating : " + selected_txt);
+                progressDialog.show();
+                String api_key = "AIzaSyD5ocbhHTFSwIdNwvdmt4SPzGkJohrcssE";
+                String rq_url = "https://www.googleapis.com/language/translate/v2?q=hello&target=vi&source=en&key=" + api_key;
+                ApiRequest translate = new ApiRequest(Request.Method.GET, rq_url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Toast.makeText(getActivity(), response.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }, null);
+                ApiHelper.addToRequestQueue(translate);
+                return false;
+
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
+            }
+        });
+
+        /*
+        txtQuestion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ClipboardManager cm = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                cm.setText(txtQuestion.getText());
+                Toast.makeText(getActivity(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
+            }
+        });*/
     }
 
     private void addControl() {
@@ -134,7 +198,7 @@ public class Question_Frag extends Fragment {
         fileCache = new FileCache(getActivity());
         ApiHelper.setContext(getActivity());
 
-        ApiRequest rq = new ApiRequest(Request.Method.GET, ApiHelper.API_URL + "/practice/" + String.valueOf(1),
+        ApiRequest rq = new ApiRequest(Request.Method.GET, ApiHelper.API_URL + "/practice/" + String.valueOf(5),
                 null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -170,6 +234,35 @@ public class Question_Frag extends Fragment {
                             DialogAdapter adapter = new DialogAdapter(getActivity(), R.layout.number_adapter, listNumberQuestion);
                             gridView.setAdapter(adapter);
                             showQuestion(1);
+
+                            for (Question q : questionHashMap.values()) {
+                                Document sour = Jsoup.parse(q.getContent());
+                                Element audio_src = sour.select("source").first();
+                                if (audio_src != null) {
+                                    final String audio = audio_src.attr("src");
+                                    InputStreamVolleyRequest rq = new InputStreamVolleyRequest(Request.Method.GET, ApiHelper.DOMAIN + audio,
+                                            new Response.Listener<byte[]>() {
+                                                @Override
+                                                public void onResponse(byte[] response) {
+                                                    fileCache.saveFile(response, audio);
+                                                }
+                                            }, null, null);
+                                    ApiHelper.addToRequestQueue(rq);
+                                }
+                                Elements imgs = sour.select("img");
+                                if (imgs != null) {
+                                    for (Element e : imgs) {
+                                        final String img_src = e.attr("src");
+                                        ImageRequest ir = new ImageRequest(ApiHelper.DOMAIN + img_src, new Response.Listener<Bitmap>() {
+                                            @Override
+                                            public void onResponse(Bitmap response) {
+                                                fileCache.saveFile(response, img_src);
+                                            }
+                                        }, 0, 0, null, null);
+                                        ApiHelper.addToRequestQueue(ir);
+                                    }
+                                }
+                            }
                         }
                     }
                 } catch (JSONException e) {

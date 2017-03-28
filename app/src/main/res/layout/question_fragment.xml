@@ -68,6 +68,7 @@
                 android:background="@drawable/bg_question"
                 android:padding="5sp"
                 android:text="Senten 1: Abc def ghi  mno pqr stu vwx yz...dkhhskdasdkashdhaskdhahlksdhakshdkahsdhdklahslkdhasdkhalshdklahdkhasdklhasdkhdkashdklashdlkahdklahdkadlkasdaklshdasklhdakslhdakslhdklsahdksaldhalskhdkalhdklahsa"
+                android:textIsSelectable="true"
                 android:textSize="22sp" />
 
             <LinearLayout
