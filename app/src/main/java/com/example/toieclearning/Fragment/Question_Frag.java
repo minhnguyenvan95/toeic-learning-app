@@ -1,5 +1,6 @@
 package com.example.toieclearning.Fragment;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -7,11 +8,13 @@ import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +31,7 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.example.toieclearning.Adapter.DialogAdapter;
 import com.example.toieclearning.Api.ApiHelper;
@@ -52,6 +56,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Question_Frag extends Fragment {
 
@@ -64,7 +70,7 @@ public class Question_Frag extends Fragment {
     TextView txtNumber, txtQuestion;
     RadioGroup rdbGroup;
     GridView gridView;
-    ArrayList listNumberQuestion;
+    ArrayList<Integer> listNumberQuestion;
     ImageButton pre, next;
     int current_question = -1;
     Handler handler;
@@ -106,68 +112,62 @@ public class Question_Frag extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int number = (int) listNumberQuestion.get(position);
+                int number = listNumberQuestion.get(position);
                 showQuestion(number);
                 dialog.dismiss();
             }
         });
 
-        txtQuestion.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
-            private boolean flag = false;
-
+        txtQuestion.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                if (!flag) {
-                    flag = true;
-                    return false;
-                }
-                flag = false;
+            public boolean onLongClick(View v) {
+                final Handler handler2 = new Handler();
+                Timer t = new Timer();
+                t.schedule(new TimerTask() {
+                    public void run() {
+                        handler2.post(new Runnable() {
+                            public void run() {
+                                int pos_start = txtQuestion.getSelectionStart();
+                                int pos_end = txtQuestion.getSelectionEnd();
+                                String selected_txt = txtQuestion.getText().toString().substring(pos_start, pos_end);
 
-                int pos_start = txtQuestion.getSelectionStart();
-                int pos_end = txtQuestion.getSelectionEnd();
-                String selected_txt = txtQuestion.getText().toString().substring(pos_start, pos_end);
+                                final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+                                progressDialog.setMessage("Translating : " + selected_txt);
+                                progressDialog.show();
 
-                ProgressDialog progressDialog = new ProgressDialog(getActivity());
-                progressDialog.setMessage("Translating : " + selected_txt);
-                progressDialog.show();
-                String api_key = "AIzaSyD5ocbhHTFSwIdNwvdmt4SPzGkJohrcssE";
-                String rq_url = "https://www.googleapis.com/language/translate/v2?q=hello&target=vi&source=en&key=" + api_key;
-                ApiRequest translate = new ApiRequest(Request.Method.GET, rq_url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Toast.makeText(getActivity(), response.toString(), Toast.LENGTH_SHORT).show();
+                                String rq_url = "http://www.transltr.org/api/translate?text="+selected_txt+"&to=vi&from=en";
+                                ApiRequest translate = new ApiRequest(Request.Method.GET, rq_url, null, new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        try {
+                                            String text = response.getString("text");
+                                            String translationText = response.getString("translationText");
+                                            progressDialog.dismiss();
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                                                    .setTitle("Translated")
+                                                    .setMessage(text + " : " + translationText);
+                                            builder.show();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(getActivity(), "Please check your network connection.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                ApiHelper.addToRequestQueue(translate);
+                            }
+                        });
                     }
-                }, null);
-                ApiHelper.addToRequestQueue(translate);
+                }, 10);
                 return false;
-
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                return false;
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
 
             }
         });
-
-        /*
-        txtQuestion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ClipboardManager cm = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                cm.setText(txtQuestion.getText());
-                Toast.makeText(getActivity(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
-            }
-        });*/
     }
 
     private void addControl() {
@@ -193,7 +193,6 @@ public class Question_Frag extends Fragment {
     private void init() {
         answeredHashMap = new HashMap<>();
         mediaPlayer = new MediaPlayer();
-        //TODO: init mTv
         imageGetterHandler = new ImageGetterHandler(txtQuestion, getActivity());
         fileCache = new FileCache(getActivity());
         ApiHelper.setContext(getActivity());
@@ -284,7 +283,6 @@ public class Question_Frag extends Fragment {
             next.setVisibility(View.VISIBLE);
         }
 
-
         Question q = questionHashMap.get(number);
 
         //Tim cau hoi chua tl
@@ -305,7 +303,12 @@ public class Question_Frag extends Fragment {
         txtNumber.setText(String.valueOf(number));
         String html = q.getContent();
         Spanned spanned = Html.fromHtml(html, imageGetterHandler, null);
-        playMediaFromHtml(html);
+        if (html.contains("<audio") && html.contains("</audio>")){
+            playMediaFromHtml(html);
+        }else{
+            View v = view.findViewById(R.id.media_player);
+            v.setVisibility(View.GONE);
+        }
         txtQuestion.setText(spanned);
 
         rdbGroup.removeAllViews();
@@ -330,7 +333,6 @@ public class Question_Frag extends Fragment {
                 @Override
                 public void onClick(View v) {
                     int a_id = v.getId();
-                    Toast.makeText(getActivity(), "CHON " + a_id, Toast.LENGTH_SHORT).show();
                     Answer c = answerArrayList.get(a_id);
                     answeredHashMap.put(c.getQuestion_id(), c);
                     showQuestion(current_question + 1);
@@ -350,11 +352,9 @@ public class Question_Frag extends Fragment {
                     rdbGroup.removeViewAt(3);
                     rdbGroup.addView(rdbtn, 3);
                 } else {
-                    rdbGroup.removeAllViews();
                     rdbGroup.addView(rdbtn);
                 }
             } catch (Exception ex) {
-                rdbGroup.removeAllViews();
                 rdbGroup.addView(rdbtn);
             }
         }
@@ -368,51 +368,50 @@ public class Question_Frag extends Fragment {
         }*/
     }
 
-    public void playMediaFromHtml(final String html) {
-        if (html.contains("<audio") && html.contains("</audio>")) {
-            Document doc = Jsoup.parse(html);
-            Element src = doc.select("source").first();
-            final String audio = src.attr("src");
-            if (audio != null) {
-                File f = fileCache.getFile(audio);
-                Log.e("file_audio", f.getAbsolutePath());
-                if (f.exists()) {
-                    mediaPlayer.reset();
-                    try {
-                        mediaPlayer.setDataSource(f.getAbsolutePath());
-                        mediaPlayer.prepare();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    mediaPlayer.start();
-                    UpdateTimeSongCurrent();
-                    media_play_btn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (mediaPlayer.isPlaying()) {
-                                mediaPlayer.pause();
-                                handler.removeCallbacksAndMessages(null);
-                                UpdateTimeSongCurrent();
-                            } else {
-                                mediaPlayer.start();
-                                UpdateTimeSongCurrent();
-                            }
-                        }
-                    });
-
-                } else {
-                    InputStreamVolleyRequest rq = new InputStreamVolleyRequest(Request.Method.GET, ApiHelper.DOMAIN + audio,
-                            new Response.Listener<byte[]>() {
-                                @Override
-                                public void onResponse(byte[] response) {
-                                    fileCache.saveFile(response, audio);
-                                    playMediaFromHtml(html);
-                                }
-                            }, null, null);
-                    ApiHelper.addToRequestQueue(rq);
+public void playMediaFromHtml(final String html) {
+        Document doc = Jsoup.parse(html);
+        Element src = doc.select("source").first();
+        final String audio = src.attr("src");
+        if (audio != null) {
+            File f = fileCache.getFile(audio);
+            Log.e("file_audio", f.getAbsolutePath());
+            if (f.exists()) {
+                mediaPlayer.reset();
+                try {
+                    mediaPlayer.setDataSource(f.getAbsolutePath());
+                    mediaPlayer.prepare();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                mediaPlayer.start();
+                UpdateTimeSongCurrent();
+                media_play_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mediaPlayer.isPlaying()) {
+                            mediaPlayer.pause();
+                            handler.removeCallbacksAndMessages(null);
+                            UpdateTimeSongCurrent();
+                        } else {
+                            mediaPlayer.start();
+                            UpdateTimeSongCurrent();
+                        }
+                    }
+                });
+
+            } else {
+                InputStreamVolleyRequest rq = new InputStreamVolleyRequest(Request.Method.GET, ApiHelper.DOMAIN + audio,
+                        new Response.Listener<byte[]>() {
+                            @Override
+                            public void onResponse(byte[] response) {
+                                fileCache.saveFile(response, audio);
+                                playMediaFromHtml(html);
+                            }
+                        }, null, null);
+                ApiHelper.addToRequestQueue(rq);
             }
         }
+
     }
 
     private void UpdateTimeSongCurrent() {

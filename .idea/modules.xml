@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ToiecLearning.iml" filepath="$PROJECT_DIR$/ToiecLearning.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/toeic-learning-app.iml" filepath="$PROJECT_DIR$/toeic-learning-app.iml" />
       <module fileurl="file://$PROJECT_DIR$/toeic-learning-app-master.iml" filepath="$PROJECT_DIR$/toeic-learning-app-master.iml" />
     </modules>
   </component>

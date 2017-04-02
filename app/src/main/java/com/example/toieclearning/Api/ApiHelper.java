@@ -14,7 +14,7 @@ import static com.android.volley.VolleyLog.TAG;
  */
 
 public class ApiHelper {
-    public static String DOMAIN = "http://mrga2411.ddns.net:8000";
+    public static String DOMAIN = "http://web.vinaran.com";
     public static String API_URL = DOMAIN + "/api/v1";
     public static String API_TOKEN = "123";
     static Context context;
