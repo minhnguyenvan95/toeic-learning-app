@@ -181,6 +181,7 @@ public class LoginActivity extends AppCompatActivity {
                         String password = edtPassword.getText().toString();
                         String api_token = (String) message.get("api_token");
                         String name = (String) message.get("name");
+                        long balance = message.getLong("balance");
                         ApiHelper.API_TOKEN = api_token;
 
                         SharedPreferences sharedPreferences = LoginActivity.this.getSharedPreferences("user", Context.MODE_PRIVATE);
@@ -190,8 +191,9 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("password", password);
                         editor.putString("api_token", api_token);
                         editor.putString("name", name);
+                        editor.putLong("balance",balance);
                         editor.apply();
-                        Toast.makeText(LoginActivity.this, "Thanh cong", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Login success", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                     } else {

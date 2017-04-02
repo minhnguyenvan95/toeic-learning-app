@@ -60,7 +60,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Question_Frag extends Fragment {
-
+    private int question_type = -1;
     HashMap<Integer, Question> questionHashMap = new HashMap<>();
     ImageGetterHandler imageGetterHandler;
     MediaPlayer mediaPlayer;
@@ -80,8 +80,8 @@ public class Question_Frag extends Fragment {
 
     HashMap<Integer, Answer> answeredHashMap;
 
-    public Question_Frag() {
-
+    public void setQuestion_type(int question_type) {
+        this.question_type = question_type;
     }
 
     @Nullable
@@ -197,7 +197,7 @@ public class Question_Frag extends Fragment {
         fileCache = new FileCache(getActivity());
         ApiHelper.setContext(getActivity());
 
-        ApiRequest rq = new ApiRequest(Request.Method.GET, ApiHelper.API_URL + "/practice/" + String.valueOf(5),
+        ApiRequest rq = new ApiRequest(Request.Method.GET, ApiHelper.API_URL + "/practice/" + String.valueOf(question_type),
                 null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {

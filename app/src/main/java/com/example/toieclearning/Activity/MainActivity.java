@@ -2,6 +2,8 @@ package com.example.toieclearning.Activity;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -9,6 +11,8 @@ import android.text.Spanned;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -22,122 +26,160 @@ import com.example.toieclearning.modal.Question;
 import com.example.toieclearning.modal.QuestionType;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-
-    Button btnQA;
-
-    ImageGetterHandler imageGetterHandler;
-    FragmentManager fragmentManager = getFragmentManager();
-    private int[] box_labels = {R.id.box_0};
+    View box_1,box_2,box_3,box_4,box_5,box_6,box_7,box_8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        btnQA = (Button) findViewById(R.id.btnQA);
-        btnQA.setOnClickListener(new View.OnClickListener() {
+        ApiHelper.setContext(getApplicationContext());
+
+        addControls();
+        addEvents();
+
+        final SharedPreferences sharedPreferences = getSharedPreferences("user",MODE_PRIVATE);
+
+        TextView logout = (TextView) findViewById(R.id.txt_logout);
+        logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                fragmentTransaction.add(R.id.showFragment, new Question_Frag(), "question");
-                fragmentTransaction.addToBackStack("ques");
-                fragmentTransaction.commit();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.commit();
+
+                Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
-        //imageGetterHandler = new ImageGetterHandler(this);
 
-        ApiHelper.setContext(getApplicationContext());
-        /*JSONObject object = new JSONObject();
-        try {
-            object.put("email","minh.nguyenvan95@gmail.com");
-            object.put("password","123456");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
-        Get_QuestionType();
-        Get_Question();
+        String name = sharedPreferences.getString("name","name");
+        long point = sharedPreferences.getLong("balance",0);
+        reloadBalance(name,point);
 
-    }
-
-    public void Get_QuestionType(){
-        ApiRequest apiRequest = new ApiRequest(Request.Method.GET, ApiHelper.API_URL + "/questiontype/all", null, new Response.Listener<JSONObject>() {
+        String api_token = sharedPreferences.getString("api_token","");
+        ApiRequest apiRequest = new ApiRequest(Request.Method.POST, ApiHelper.API_URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try{
+                try {
                     String status = (String) response.get("status");
-                    JSONObject message = response.getJSONObject("message");
-                    JSONArray data = message.getJSONArray("data");
-                    Log.e("Get_QuestionType",status);
-                    ArrayList<QuestionType> questionTypeArrayList = new ArrayList<>();
+                    if(status == "success"){
+                        JSONObject message = (JSONObject) response.get("message");
+                        String name = message.getString("name");
+                        long balance = message.getLong("balance");
+                        reloadBalance(name,balance);
 
-                    if(status.equals("success")) {
-                        for (int i = 0; i < data.length(); i++) {
-                            JSONObject object = data.getJSONObject(i);
-                            QuestionType questionType = new QuestionType();
-                            questionType.setId((int) object.get("id"));
-                            questionType.setMeta((String) object.get("meta"));
-                            questionType.setName((String) object.get("name"));
-                            questionTypeArrayList.add(questionType);
-                        }
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("name",name);
+                        editor.putLong("balance",balance);
+                        editor.commit();
                     }
-                }catch (Exception e){
-                    Log.e("Error_getQuestionType",e.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.getCause();
-                //.makeText(MainActivity.this, , Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
             }
         });
-        ApiHelper.addToRequestQueue(apiRequest,"load_questionType");
     }
 
-    public void Get_Question(){
-        ApiRequest apiRequest = new ApiRequest(Request.Method.GET, ApiHelper.API_URL + "/question/type/3", null, new Response.Listener<JSONObject>() {
+    private void showPackagesFragment(int package_type){
+        Toast.makeText(this, "Goi cau hoi, chua lam", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showQuestionFragment(int question_type){
+        Question_Frag question_frag = new Question_Frag();
+        question_frag.setQuestion_type(question_type);
+
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.showFragment, question_frag,"question");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    private void addEvents() {
+
+        box_1.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onResponse(JSONObject response) {
-                try{
-                    String status = (String) response.get("status");
-                    JSONObject message = response.getJSONObject("message");
-                    JSONArray data = message.getJSONArray("data");
-                    Log.e("Get_Question",status);
-                    ArrayList<Question> questionArrayList = new ArrayList<>();
-
-                    if(status.equals("success")) {
-
-                            JSONObject object = data.getJSONObject(0);
-                            Question question = new Question();
-                            question.setId((int) object.get("id"));
-                            question.setQuestion_type_id((int) object.get("question_type_id"));
-                            question.setContent((String) object.get("content"));
-                            questionArrayList.add(question);
-                            //Document doc = Jsoup.parse(question.getContent());
-                            String html_source = question.getContent();
-                        //TextView txtvTest = (TextView) findViewById(R.id.test);
-                            //txtvTest.setText(Html.from(doc.toString()));
-
-                            Html.fromHtml(html_source,imageGetterHandler,null);
-                            Spanned spanned = Html.fromHtml(html_source, imageGetterHandler, null);
-                        //txtvTest.setText(Html.fromHtml(html_source,null, new HtmlTagHandler()));
-
-                    }
-                }catch (Exception e){
-                    Log.e("Error_getQuestion",e.toString());
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.getCause();
-                //.makeText(MainActivity.this, , Toast.LENGTH_SHORT).show();
+            public void onClick(View v) {
+                showQuestionFragment(1);
             }
         });
-        ApiHelper.addToRequestQueue(apiRequest,"load_question");
+
+        box_2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showQuestionFragment(2);
+            }
+        });
+
+        box_3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPackagesFragment(3);
+            }
+        });
+
+        box_4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPackagesFragment(4);
+            }
+        });
+        box_5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showQuestionFragment(5);
+            }
+        });
+
+        box_6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPackagesFragment(6);
+            }
+        });
+
+        box_7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPackagesFragment(7);
+            }
+        });
+
+        box_8.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "Tu dien", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addControls() {
+        box_1 = findViewById(R.id.box_1);
+        box_2 = findViewById(R.id.box_2);
+        box_3 = findViewById(R.id.box_3);
+        box_4 = findViewById(R.id.box_4);
+        box_5 = findViewById(R.id.box_5);
+        box_6 = findViewById(R.id.box_6);
+        box_7 = findViewById(R.id.box_7);
+        box_8 = findViewById(R.id.box_8);
+    }
+
+    public void reloadBalance(String name,long balance){
+        TextView txtname = (TextView) findViewById(R.id.txtNameUser);
+        txtname.setText(name);
+        TextView txtpoint = (TextView) findViewById(R.id.txtPoint);
+        txtpoint.setText(String.valueOf(balance));
     }
 }

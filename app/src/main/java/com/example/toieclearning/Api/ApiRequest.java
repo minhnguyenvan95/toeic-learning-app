@@ -25,8 +25,6 @@ public class ApiRequest extends JsonObjectRequest {
         super(url, jsonRequest, listener, errorListener);
     }
 
-
-
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
         HashMap<String, String> headers = new HashMap<>();
