@@ -8,16 +8,11 @@ import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
-import android.view.ActionMode;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -60,7 +55,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Question_Frag extends Fragment {
-    private int question_type = -1;
     HashMap<Integer, Question> questionHashMap = new HashMap<>();
     ImageGetterHandler imageGetterHandler;
     MediaPlayer mediaPlayer;
@@ -77,8 +71,8 @@ public class Question_Frag extends Fragment {
     SeekBar media_seekBar;
     TextView media_current_txt;
     ImageButton media_play_btn;
-
     HashMap<Integer, Answer> answeredHashMap;
+    private int question_type = -1;
 
     public void setQuestion_type(int question_type) {
         this.question_type = question_type;
@@ -437,4 +431,5 @@ public void playMediaFromHtml(final String html) {
             }
         }, 1);
     }
+
 }
