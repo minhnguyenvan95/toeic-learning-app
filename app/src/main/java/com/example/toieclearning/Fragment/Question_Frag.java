@@ -59,6 +59,8 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.view.View.GONE;
+
 public class Question_Frag extends Fragment {
     private int question_type = -1;
     HashMap<Integer, Question> questionHashMap = new HashMap<>();
@@ -274,9 +276,16 @@ public class Question_Frag extends Fragment {
     }
 
     private void showQuestion(int number) {
+
+        if(mediaPlayer != null){
+            mediaPlayer.pause();
+        }
+
         if (number == 1) {
             pre.setVisibility(View.INVISIBLE);
+            next.setVisibility(View.VISIBLE);
         } else if (number >= questionHashMap.size()) {
+            pre.setVisibility(View.VISIBLE);
             next.setVisibility(View.INVISIBLE);
         } else {
             pre.setVisibility(View.VISIBLE);
@@ -302,12 +311,16 @@ public class Question_Frag extends Fragment {
         current_question = number;
         txtNumber.setText(String.valueOf(number));
         String html = q.getContent();
+
         Spanned spanned = Html.fromHtml(html, imageGetterHandler, null);
+        if(spanned.toString().length() < 10){
+            txtQuestion.setVisibility(GONE);
+        }
         if (html.contains("<audio") && html.contains("</audio>")){
             playMediaFromHtml(html);
         }else{
             View v = view.findViewById(R.id.media_player);
-            v.setVisibility(View.GONE);
+            v.setVisibility(GONE);
         }
         txtQuestion.setText(spanned);
 
@@ -368,7 +381,7 @@ public class Question_Frag extends Fragment {
         }*/
     }
 
-public void playMediaFromHtml(final String html) {
+    public void playMediaFromHtml(final String html) {
         Document doc = Jsoup.parse(html);
         Element src = doc.select("source").first();
         final String audio = src.attr("src");
@@ -426,6 +439,11 @@ public void playMediaFromHtml(final String html) {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                if(isDetached() || !isAdded()){
+                    mediaPlayer.release();
+                    return;
+                }
+
                 int c_seekbar_pos = 100 * mediaPlayer.getCurrentPosition() / mediaPlayer.getDuration();
                 media_seekBar.setProgress(c_seekbar_pos);
                 SimpleDateFormat timeFormat = new SimpleDateFormat("mm:ss");

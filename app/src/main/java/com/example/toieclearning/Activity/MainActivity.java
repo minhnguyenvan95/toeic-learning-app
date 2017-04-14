@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.showFragment, question_frag,"question");
-        fragmentTransaction.addToBackStack(null);
+        //fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 
@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 showPackagesFragment(4);
             }
         });
+
         box_5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
