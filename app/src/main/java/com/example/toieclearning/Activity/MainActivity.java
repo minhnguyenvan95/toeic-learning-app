@@ -20,6 +20,7 @@ import com.android.volley.VolleyError;
 import com.example.toieclearning.Api.ApiHelper;
 import com.example.toieclearning.Api.ApiRequest;
 import com.example.toieclearning.Api.ImageGetterHandler;
+import com.example.toieclearning.Fragment.QuestionPackage_Fragment;
 import com.example.toieclearning.Fragment.Question_Frag;
 import com.example.toieclearning.R;
 import com.example.toieclearning.modal.Question;
@@ -94,7 +95,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showPackagesFragment(int package_type){
-        Toast.makeText(this, "Goi cau hoi, chua lam", Toast.LENGTH_SHORT).show();
+        QuestionPackage_Fragment packageFragment = new QuestionPackage_Fragment();
+        packageFragment.setPackage_type(package_type);
+
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.showFragment, packageFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     private void showQuestionFragment(int question_type){
