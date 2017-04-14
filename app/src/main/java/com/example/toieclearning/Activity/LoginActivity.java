@@ -87,12 +87,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        txtQuenMK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO:QUEN MK
-            }
-        });
 
     }
 
@@ -220,7 +214,6 @@ public class LoginActivity extends AppCompatActivity {
         txtChuaCoTK = (TextView) findViewById(R.id.txtChuaCoTk);
         edtEmail = (EditText) findViewById(R.id.edtEmailLogin);
         edtPassword = (EditText) findViewById(R.id.edtPassLogin);
-        txtQuenMK = (TextView) findViewById(R.id.txtQuenMK);
         btnDangNhap = (Button) findViewById(R.id.btnDangNhap);
     }
 }

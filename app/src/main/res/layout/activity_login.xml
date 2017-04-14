@@ -62,17 +62,7 @@
             android:padding="12dp"
             android:text="Đăng nhập"
             android:textColor="#ffffff" />
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/txtQuenMK"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginRight="5sp"
-            android:layout_marginTop="15sp"
-            android:paddingBottom="5sp"
-            android:text="Quên mật khẩu?"
-            android:textColor="#00ACC1"
-            android:textSize="18sp" />
+
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/txtChuaCoTk"
             android:layout_width="wrap_content"

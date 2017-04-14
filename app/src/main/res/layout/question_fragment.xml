@@ -5,12 +5,22 @@
     android:background="#fff"
     android:orientation="vertical">
 
+    <com.github.ybq.android.spinkit.SpinKitView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/spin_kit"
+        style="@style/SpinKitView.Small.DoubleBounce"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        app:SpinKit_Color="@color/colorAccent" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="70sp"
         android:background="#00acc1"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:id="@+id/quest_nav">
 
         <ImageButton
             android:id="@+id/previous_question_btn"
@@ -51,7 +61,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/container">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -109,6 +120,4 @@
             </RadioGroup>
         </LinearLayout>
     </ScrollView>
-
-
-</LinearLayout>
+    </LinearLayout>

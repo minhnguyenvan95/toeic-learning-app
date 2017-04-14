@@ -42,6 +42,7 @@ import com.example.toieclearning.Api.InputStreamVolleyRequest;
 import com.example.toieclearning.R;
 import com.example.toieclearning.modal.Answer;
 import com.example.toieclearning.modal.Question;
+import com.github.ybq.android.spinkit.SpinKitView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -79,6 +80,9 @@ public class Question_Frag extends Fragment {
     SeekBar media_seekBar;
     TextView media_current_txt;
     ImageButton media_play_btn;
+
+    SpinKitView spin_kit;
+    View container;
 
     HashMap<Integer, Answer> answeredHashMap;
 
@@ -190,6 +194,11 @@ public class Question_Frag extends Fragment {
                 dialog.show();
             }
         });
+        spin_kit = (SpinKitView) view.findViewById(R.id.spin_kit);
+
+        spin_kit.setVisibility(View.VISIBLE);
+        container = view.findViewById(R.id.container);
+        //container.setVisibility(GONE);
     }
 
     private void init() {
@@ -204,6 +213,8 @@ public class Question_Frag extends Fragment {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+                    spin_kit.setVisibility(GONE);
+                    container.setVisibility(View.VISIBLE);
                     if (response.get("status").equals("success")) {
                         Boolean isPackage = (Boolean) response.get("isPackage");
                         JSONArray data = (JSONArray) response.get("message");
