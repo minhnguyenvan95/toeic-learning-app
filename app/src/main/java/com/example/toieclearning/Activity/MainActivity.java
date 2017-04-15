@@ -1,16 +1,11 @@
 package com.example.toieclearning.Activity;
 
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
-import android.text.Spanned;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,22 +14,22 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.example.toieclearning.Api.ApiHelper;
 import com.example.toieclearning.Api.ApiRequest;
+<<<<<<< HEAD
 import com.example.toieclearning.Api.ImageGetterHandler;
 import com.example.toieclearning.Fragment.QuestionPackage_Fragment;
+=======
+>>>>>>> 6cbb3579ddc4d34b5bf2ba79de384599b1d0062e
 import com.example.toieclearning.Fragment.Question_Frag;
 import com.example.toieclearning.R;
-import com.example.toieclearning.modal.Question;
-import com.example.toieclearning.modal.QuestionType;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    private final static String TAG_FRAGMENT = "TAG_FRAGMENT";
     View box_1,box_2,box_3,box_4,box_5,box_6,box_7,box_8;
+    FragmentTransaction fragmentTransaction;
+    Question_Frag question_frag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,14 +99,25 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+
     private void showQuestionFragment(int question_type){
-        Question_Frag question_frag = new Question_Frag();
+        question_frag = new Question_Frag();
         question_frag.setQuestion_type(question_type);
 
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.showFragment, question_frag,"question");
+        fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.showFragment, question_frag, "TAG_FRAG");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
+            this.finish();
+        } else {
+            getFragmentManager().popBackStack();
+        }
     }
 
     private void addEvents() {
@@ -190,4 +196,5 @@ public class MainActivity extends AppCompatActivity {
         TextView txtpoint = (TextView) findViewById(R.id.txtPoint);
         txtpoint.setText(String.valueOf(balance));
     }
+
 }

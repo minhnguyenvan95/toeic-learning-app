@@ -61,8 +61,12 @@
 
     <ScrollView
         android:layout_width="match_parent"
+<<<<<<< HEAD
         android:layout_height="match_parent"
         android:id="@+id/container">
+=======
+        android:layout_height="match_parent">
+>>>>>>> 6cbb3579ddc4d34b5bf2ba79de384599b1d0062e
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -83,12 +87,12 @@
                 android:textSize="22sp" />
 
             <LinearLayout
+                android:id="@+id/media_player"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal"
-                android:paddingLeft="10dp"
-                android:id="@+id/media_player">
+                android:paddingLeft="10dp">
 
                 <ImageButton
                     android:id="@+id/media_play_btn"
