@@ -1,62 +1,114 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFF"
+    android:orientation="vertical"
     tools:context="com.example.toieclearning.Fragment.QuestionPackage_Fragment">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/quest_nav"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <RelativeLayout
+        android:layout_height="70sp"
+        android:background="#00acc1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/previous_question_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15sp"
+            android:background="@null"
+            android:src="@drawable/back" />
+
+        <TextView
+            android:id="@+id/txtNumber"
+            android:layout_width="60sp"
+            android:layout_height="60sp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_number"
+            android:gravity="center"
+            android:text="1"
+            android:textColor="#00acc1"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+
+        <ImageButton
+            android:id="@+id/next_question_btn"
+            android:layout_width="50sp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/previous_question_btn"
+            android:layout_marginEnd="11dp"
+            android:layout_marginRight="11dp"
+            android:background="@null"
+            android:src="@drawable/next" />
+    </RelativeLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/nestedscrollview">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="70sp"
-            android:background="#00acc1"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:id="@+id/quest_nav">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+    <TextView
+        android:id="@+id/txtQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5sp"
+        android:layout_marginRight="5sp"
+        android:layout_marginTop="20sp"
+        android:background="@drawable/bg_package"
+        android:padding="5sp"
+        android:text="asd"
+        android:textIsSelectable="true"
+        android:textSize="22sp" />
 
-            <ImageButton
-                android:id="@+id/previous_question_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="15sp"
-                android:background="@null"
-                android:src="@drawable/back" />
+    <LinearLayout
+        android:id="@+id/media_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp">
 
-            <TextView
-                android:id="@+id/txtNumber"
-                android:layout_width="60sp"
-                android:layout_height="60sp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/bg_number"
-                android:gravity="center"
-                android:text="1"
-                android:textColor="#00acc1"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-
-            <ImageButton
-                android:id="@+id/next_question_btn"
-                android:layout_width="50sp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignTop="@+id/previous_question_btn"
-                android:layout_marginEnd="11dp"
-                android:layout_marginRight="11dp"
-                android:background="@null"
-                android:src="@drawable/next" />
-        </RelativeLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/media_play_btn"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/rcvPackage"/>
+            android:background="@null"
+            android:src="@android:drawable/ic_media_play" />
+
+        <TextView
+            android:id="@+id/media_current_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="00:00" />
+
+        <SeekBar
+            android:id="@+id/media_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="50sp" />
     </LinearLayout>
 
-</FrameLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rcvPackage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"/>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>

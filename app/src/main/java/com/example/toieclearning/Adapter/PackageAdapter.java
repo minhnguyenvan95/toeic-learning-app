@@ -25,10 +25,18 @@ import java.util.HashMap;
 
 public class PackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
-
     private Context context;
     private ArrayList<Question> questionArrayList;
     private HashMap<Integer, Answer> answeredHashMap;
+    private String noidung_goicauhoi;
+
+    public String getNoidung_goicauhoi() {
+        return noidung_goicauhoi;
+    }
+
+    public void setNoidung_goicauhoi(String noidung_goicauhoi) {
+        this.noidung_goicauhoi = noidung_goicauhoi;
+    }
 
     public HashMap<Integer, Answer> getAnsweredHashMap() {
         return answeredHashMap;
@@ -55,11 +63,12 @@ public class PackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             Spanned spanned = Html.fromHtml(html, new ImageGetterHandler(mHolder.question, context), null);
             mHolder.question.setText(spanned);
-            RadioGroup rdbGroup = mHolder.answers;
+
+
             final HashMap<Integer, Answer> answerArrayList = q.getAnswers();
 
             for (int i = 0; i < answerArrayList.size(); i++) {
-                rdbGroup.addView(new View(context));
+                mHolder.answers.addView(new View(context));
             }
 
             for (Answer a : answerArrayList.values()) {
@@ -83,22 +92,22 @@ public class PackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 });
                 try {
                     if (a.getContent().equals("A")) {
-                        rdbGroup.removeViewAt(0);
-                        rdbGroup.addView(rdbtn, 0);
+                        mHolder.answers.removeViewAt(0);
+                        mHolder.answers.addView(rdbtn, 0);
                     } else if (a.getContent().equals("B")) {
-                        rdbGroup.removeViewAt(1);
-                        rdbGroup.addView(rdbtn, 1);
+                        mHolder.answers.removeViewAt(1);
+                        mHolder.answers.addView(rdbtn, 1);
                     } else if (a.getContent().equals("C")) {
-                        rdbGroup.removeViewAt(2);
-                        rdbGroup.addView(rdbtn, 2);
+                        mHolder.answers.removeViewAt(2);
+                        mHolder.answers.addView(rdbtn, 2);
                     } else if (a.getContent().equals("D")) {
-                        rdbGroup.removeViewAt(3);
-                        rdbGroup.addView(rdbtn, 3);
+                        mHolder.answers.removeViewAt(3);
+                        mHolder.answers.addView(rdbtn, 3);
                     } else {
-                        rdbGroup.addView(rdbtn);
+                        mHolder.answers.addView(rdbtn);
                     }
                 } catch (Exception ex) {
-                    rdbGroup.addView(rdbtn);
+                    mHolder.answers.addView(rdbtn);
                 }
             }
 
@@ -109,7 +118,7 @@ public class PackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemCount() {
-        return 0;
+        return questionArrayList.size();
     }
 
     public class QuestionViewHolder extends RecyclerView.ViewHolder{

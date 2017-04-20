@@ -61,12 +61,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-<<<<<<< HEAD
         android:layout_height="match_parent"
         android:id="@+id/container">
-=======
-        android:layout_height="match_parent">
->>>>>>> 6cbb3579ddc4d34b5bf2ba79de384599b1d0062e
 
         <LinearLayout
             android:layout_width="match_parent"

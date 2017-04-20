@@ -14,11 +14,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.example.toieclearning.Api.ApiHelper;
 import com.example.toieclearning.Api.ApiRequest;
-<<<<<<< HEAD
-import com.example.toieclearning.Api.ImageGetterHandler;
+
 import com.example.toieclearning.Fragment.QuestionPackage_Fragment;
-=======
->>>>>>> 6cbb3579ddc4d34b5bf2ba79de384599b1d0062e
 import com.example.toieclearning.Fragment.Question_Frag;
 import com.example.toieclearning.R;
 
@@ -93,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         QuestionPackage_Fragment packageFragment = new QuestionPackage_Fragment();
         packageFragment.setPackage_type(package_type);
 
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.showFragment, packageFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();

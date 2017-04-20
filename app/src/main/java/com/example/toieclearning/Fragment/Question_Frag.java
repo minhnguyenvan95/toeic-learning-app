@@ -74,13 +74,9 @@ public class Question_Frag extends Fragment {
     SeekBar media_seekBar;
     TextView media_current_txt;
     ImageButton media_play_btn;
-<<<<<<< HEAD
-
     SpinKitView spin_kit;
     View container;
 
-=======
->>>>>>> 6cbb3579ddc4d34b5bf2ba79de384599b1d0062e
     HashMap<Integer, Answer> answeredHashMap;
     private int question_type = -1;
 
