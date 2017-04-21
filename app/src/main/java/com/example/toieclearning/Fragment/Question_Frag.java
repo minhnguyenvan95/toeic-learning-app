@@ -318,7 +318,7 @@ public class Question_Frag extends Fragment {
         String html = q.getContent();
 
         Spanned spanned = Html.fromHtml(html, imageGetterHandler, null);
-        if(spanned.toString().length() < 10){
+        if(spanned.toString().length() < 10 && !html.contains("<img")){
             txtQuestion.setVisibility(GONE);
         }
         if (html.contains("<audio") && html.contains("</audio>")){

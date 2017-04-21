@@ -87,8 +87,10 @@ public class ImageGetterHandler implements Html.ImageGetter{
                 mDrawable.addLevel(1, 1, d);
                 mDrawable.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
                 mDrawable.setLevel(1);
-                CharSequence text = mTextview.getText();
-                mTextview.setText(text);
+                if (mTextview != null) {
+                    CharSequence text = mTextview.getText();
+                    mTextview.setText(text);
+                }
             }
         }
     }

@@ -171,7 +171,8 @@ public class MainActivity extends AppCompatActivity {
         box_8.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Tu dien", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this,SearchActivity.class);
+                startActivity(intent);
             }
         });
     }
