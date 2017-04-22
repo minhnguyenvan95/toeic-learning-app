@@ -1,6 +1,7 @@
 package com.example.toieclearning.Adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
@@ -15,6 +16,7 @@ import com.example.toieclearning.Api.ImageGetterHandler;
 import com.example.toieclearning.R;
 import com.example.toieclearning.modal.Answer;
 import com.example.toieclearning.modal.Question;
+import com.example.toieclearning.myInterface.OnPackageRdbSelectedListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,8 +29,35 @@ public class PackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private Context context;
     private ArrayList<Question> questionArrayList;
-    private HashMap<Integer, Answer> answeredHashMap;
+    public HashMap<Integer, Answer> answeredHashMap;
+    public HashMap<Integer, Answer> danhsachcauhoi;
     private String noidung_goicauhoi;
+    public Boolean diem_flag = false;
+    private OnPackageRdbSelectedListener listener;
+
+    public ArrayList<Question> getQuestionArrayList() {
+        return questionArrayList;
+    }
+
+    public HashMap<Integer, Answer> getDanhsachcauhoi() {
+        return danhsachcauhoi;
+    }
+
+    public void setDanhsachcauhoi(HashMap<Integer, Answer> danhsachcauhoi) {
+        this.danhsachcauhoi = danhsachcauhoi;
+    }
+
+    public void setQuestionArrayList(ArrayList<Question> questionArrayList) {
+        this.questionArrayList = questionArrayList;
+    }
+
+    public Boolean getDiem_flag() {
+        return diem_flag;
+    }
+
+    public void setDiem_flag(Boolean diem_flag) {
+        this.diem_flag = diem_flag;
+    }
 
     public String getNoidung_goicauhoi() {
         return noidung_goicauhoi;
@@ -42,10 +71,12 @@ public class PackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return answeredHashMap;
     }
 
-    public PackageAdapter(Context context, ArrayList<Question> questions) {
+    public PackageAdapter(Context context, ArrayList<Question> questions,OnPackageRdbSelectedListener l) {
         this.context = context;
         this.questionArrayList = questions;
         this.answeredHashMap = new HashMap<>();
+        this.listener = l;
+        this.danhsachcauhoi = new HashMap<>();
     }
 
     @Override
@@ -67,19 +98,35 @@ public class PackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             final HashMap<Integer, Answer> answerArrayList = q.getAnswers();
 
+            mHolder.answers.removeAllViews();
+
             for (int i = 0; i < answerArrayList.size(); i++) {
                 mHolder.answers.addView(new View(context));
             }
 
             for (Answer a : answerArrayList.values()) {
-                RadioButton rdbtn = new RadioButton(context);
+                danhsachcauhoi.put(a.getId(),a);
+                final RadioButton rdbtn = new RadioButton(context);
                 rdbtn.setId(a.getId());
                 rdbtn.setText(a.getContent());
+                if (diem_flag){
+                    if (a.isChecked()){
+                        rdbtn.setTextColor(Color.BLUE);
+                    }
+                }
 
                 Answer da_chon = answeredHashMap.get(q.getId());
 
                 if (da_chon != null && a.getId() == da_chon.getId()) {
                     rdbtn.setChecked(true);
+                    if (diem_flag){
+                        if (da_chon.isChecked()){
+                            rdbtn.setTextColor(Color.BLUE);
+                        }
+                        else {
+                            rdbtn.setTextColor(Color.RED);
+                        }
+                    }
                 }
 
                 rdbtn.setOnClickListener(new View.OnClickListener() {
@@ -88,6 +135,17 @@ public class PackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         int a_id = v.getId();
                         Answer c = answerArrayList.get(a_id);
                         answeredHashMap.put(c.getQuestion_id(), c);
+                        /*
+                        if (c.isChecked()){
+                            diem++;
+                        }*/
+                        if(answeredHashMap.size() == questionArrayList.size()){
+                            listener.onAllRdbInPackageSelected();
+                        }
+
+                        if(listener != null)
+                            listener.onPackageRdbSelected();
+
                     }
                 });
                 try {
@@ -130,5 +188,12 @@ public class PackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             question = (TextView) itemView.findViewById(R.id.txtQuestion);
             answers = (RadioGroup) itemView.findViewById(R.id.rdbGroupAnswer);
         }
+    }
+    public void refreshEvents(ArrayList<Question> questionArrayList) {
+        ArrayList<Question> temp = new ArrayList<>();
+        temp = questionArrayList;
+        questionArrayList.clear();
+        questionArrayList.addAll(temp);
+        notifyDataSetChanged();
     }
 }

@@ -1,14 +1,14 @@
 package com.example.toieclearning.Fragment;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -27,6 +29,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
+import com.example.toieclearning.Adapter.DialogAdapter;
 import com.example.toieclearning.Adapter.PackageAdapter;
 import com.example.toieclearning.Api.ApiHelper;
 import com.example.toieclearning.Api.ApiRequest;
@@ -36,6 +39,7 @@ import com.example.toieclearning.Api.InputStreamVolleyRequest;
 import com.example.toieclearning.R;
 import com.example.toieclearning.modal.Answer;
 import com.example.toieclearning.modal.Question;
+import com.example.toieclearning.myInterface.OnPackageRdbSelectedListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,6 +51,7 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +60,7 @@ import java.util.TimerTask;
 
 import static android.view.View.GONE;
 
-public class QuestionPackage_Fragment extends Fragment {
+public class QuestionPackage_Fragment extends Fragment implements OnPackageRdbSelectedListener{
     private int package_type;
     private View mView;
     ArrayList<PackageAdapter> packageAdapterArrayList;
@@ -72,6 +77,8 @@ public class QuestionPackage_Fragment extends Fragment {
     TextView txtQuestion;
     private ImageGetterHandler imageGetterHandler;
     private NestedScrollView nestedScrollView;
+    Dialog dialog;
+    GridView gridView;
 
     public void setPackage_type(int package_type) {
         this.package_type = package_type;
@@ -124,11 +131,13 @@ public class QuestionPackage_Fragment extends Fragment {
             public void onResponse(JSONObject response) {
                 try {
 
+                    final ArrayList<Integer> listNumberQuestion = new ArrayList<>();
                     if (response.get("status").equals("success")) {
                         Boolean isPackage = (Boolean) response.get("isPackage");
                         JSONArray data = response.getJSONArray("message");
                         if (isPackage) {
                             for(int ll=0;ll<data.length();ll++) {
+                                listNumberQuestion.add(ll+1);
                                 ArrayList<Question> questionArrayList = new ArrayList<>();
                                 JSONObject qoi = (JSONObject) data.get(ll);
 
@@ -136,7 +145,6 @@ public class QuestionPackage_Fragment extends Fragment {
                                 JSONArray danhsach_cauhoi = qoi.getJSONArray("questions");
 
                                 for (int i = 0; i < danhsach_cauhoi.length(); i++) {
-
                                     JSONObject qo = (JSONObject) danhsach_cauhoi.get(i);
                                     int question_id = qo.getInt("id");
                                     String s_package_id = qo.getString("package_id");
@@ -159,7 +167,7 @@ public class QuestionPackage_Fragment extends Fragment {
                                     questionArrayList.add(q);
                                 }
 
-                                PackageAdapter packageAdapter = new PackageAdapter(getActivity(),questionArrayList);
+                                PackageAdapter packageAdapter = new PackageAdapter(getActivity(),questionArrayList,QuestionPackage_Fragment.this);
                                 packageAdapter.setNoidung_goicauhoi(noidung_goicauhoi);
                                 packageAdapterArrayList.add(packageAdapter);
 
@@ -183,9 +191,18 @@ public class QuestionPackage_Fragment extends Fragment {
                         }
                     }
 
+                    DialogAdapter adapter = new DialogAdapter(getActivity(), R.layout.number_adapter, listNumberQuestion);
+                    gridView.setAdapter(adapter);
+                    gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                            int number = listNumberQuestion.get(position);
+                            showPackage(position);
+                            dialog.dismiss();
+                        }
+                    });
 
                     showPackage(0);
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -222,6 +239,17 @@ public class QuestionPackage_Fragment extends Fragment {
         media_current_txt = (TextView) mView.findViewById(R.id.media_current_txt);
         media_seekBar = (SeekBar) mView.findViewById(R.id.media_seekbar);
         txtQuestion = (TextView) mView.findViewById(R.id.txtQuestion);
+
+        dialog = new Dialog(getActivity());
+        dialog.setContentView(R.layout.select_question);
+        gridView = (GridView) dialog.findViewById(R.id.grNumber);
+
+        txtNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.show();
+            }
+        });
     }
 
     private void showPackage(int pos){
@@ -233,9 +261,14 @@ public class QuestionPackage_Fragment extends Fragment {
         if(pos == 0){
             pre.setVisibility(View.INVISIBLE);
             next.setVisibility(View.VISIBLE);
-        }else if(pos >= packageAdapterArrayList.size() - 1){
+        }else if(pos == packageAdapterArrayList.size() - 1) {
             pre.setVisibility(View.VISIBLE);
             next.setVisibility(View.INVISIBLE);
+        }
+        else if(pos >= packageAdapterArrayList.size()){
+            pre.setVisibility(View.VISIBLE);
+            next.setVisibility(View.INVISIBLE);
+            return;
         }else{
             pre.setVisibility(View.VISIBLE);
             next.setVisibility(View.VISIBLE);
@@ -309,7 +342,6 @@ public class QuestionPackage_Fragment extends Fragment {
 
             }
         });
-
     }
 
     public void playMediaFromHtml(final String html) {
@@ -387,4 +419,69 @@ public class QuestionPackage_Fragment extends Fragment {
         }, 1);
     }
 
+    @Override
+    public void onPackageRdbSelected() {
+        int socauhoi = 0;
+        int socautraloi = 0;
+        for (int i=0;i<packageAdapterArrayList.size();i++){
+            socautraloi += packageAdapterArrayList.get(i).getAnsweredHashMap().size();
+            socauhoi += packageAdapterArrayList.get(i).getQuestionArrayList().size();
+        }
+        int sodiem = 0;
+        if(socautraloi == socauhoi){
+            for (int i=0;i<packageAdapterArrayList.size();i++){
+                PackageAdapter packageAdapter = packageAdapterArrayList.get(i);
+
+                HashMap<Integer, Answer> answeredHashMap = packageAdapter.getAnsweredHashMap();
+                HashMap<Integer, Answer> danhsachcauhoi = packageAdapter.getDanhsachcauhoi();
+                for (Answer a:answeredHashMap.values()){
+                    Answer correct = danhsachcauhoi.get(a.getId());
+                    if(correct.isChecked())
+                        sodiem++;
+                }
+            }
+
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setMessage("Xem kết quả bài test của bạn");
+            final int finalSodiem = sodiem;
+
+            final int finalSocauhoi = socauhoi;
+            alertDialogBuilder.setPositiveButton("Xem", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface arg0, int arg1) {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                    alertDialogBuilder.setMessage("Bài test của bạn đạt: " + finalSodiem + "/" + finalSocauhoi);
+                    alertDialogBuilder.setPositiveButton("Xem đáp án", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            for (int i=0;i<packageAdapterArrayList.size();i++){
+                                PackageAdapter packageAdapter = packageAdapterArrayList.get(i);
+                                packageAdapter.setDiem_flag(true);
+                                packageAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                }
+            });
+
+            alertDialogBuilder.setNegativeButton("Làm lại", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+
+        }
+    }
+
+    @Override
+    public void onAllRdbInPackageSelected() {
+        showPackage(current_package+1);
+    }
 }

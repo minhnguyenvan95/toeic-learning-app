@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -79,6 +81,8 @@ public class Question_Frag extends Fragment {
 
     HashMap<Integer, Answer> answeredHashMap;
     private int question_type = -1;
+    private int diem = 0;
+    private Boolean diem_flag = false;
 
     public void setQuestion_type(int question_type) {
         this.question_type = question_type;
@@ -310,7 +314,6 @@ public class Question_Frag extends Fragment {
                 }
             }
         }
-
         //TODO: Neu q la null cham diem
 
         current_question = number;
@@ -337,14 +340,28 @@ public class Question_Frag extends Fragment {
         }
 
         for (Answer a : answerArrayList.values()) {
-            RadioButton rdbtn = new RadioButton(getActivity());
+            final RadioButton rdbtn = new RadioButton(getActivity());
             rdbtn.setId(a.getId());
             rdbtn.setText(a.getContent());
+
+            if (diem_flag){
+                if (a.isChecked()){
+                    rdbtn.setTextColor(Color.BLUE);
+                }
+            }
 
             Answer da_chon = answeredHashMap.get(q.getId());
 
             if (da_chon != null && a.getId() == da_chon.getId()) {
                 rdbtn.setChecked(true);
+                if (diem_flag){
+                    if (da_chon.isChecked()){
+                        rdbtn.setTextColor(Color.BLUE);
+                    }
+                    else {
+                        rdbtn.setTextColor(Color.RED);
+                    }
+                }
             }
 
             rdbtn.setOnClickListener(new View.OnClickListener() {
@@ -353,7 +370,42 @@ public class Question_Frag extends Fragment {
                     int a_id = v.getId();
                     Answer c = answerArrayList.get(a_id);
                     answeredHashMap.put(c.getQuestion_id(), c);
-                    showQuestion(current_question + 1);
+                    if (c.isChecked()){
+                        diem++;
+                    }
+                    if (current_question < questionHashMap.size()){
+                        showQuestion(current_question + 1);
+                    }
+                    if (answeredHashMap.size() == questionHashMap.size()){
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                        alertDialogBuilder.setMessage("Xem kết quả bài test của bạn");
+                        alertDialogBuilder.setPositiveButton("Xem", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                alertDialogBuilder.setMessage("Bài test của bạn đạt: " + diem + "/" + answeredHashMap.size());
+                                alertDialogBuilder.setPositiveButton("Xem đáp án", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface arg0, int arg1) {
+                                        diem_flag = true;
+                                        showQuestion(1);
+                                    }
+                                });
+                                AlertDialog alertDialog = alertDialogBuilder.create();
+                                alertDialog.show();
+                                }
+                        });
+
+                        alertDialogBuilder.setNegativeButton("Làm lại", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+                    }
                 }
             });
             try {
